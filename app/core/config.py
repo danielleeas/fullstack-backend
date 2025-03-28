@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     
+    ADMIN_EMAIL: str
+    ADMIN_USERNAME: str
+    ADMIN_PASSWORD: str
+    ADMIN_FIRST_NAME: str
+    ADMIN_LAST_NAME: str
+    
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

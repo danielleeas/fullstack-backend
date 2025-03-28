@@ -39,8 +39,8 @@ class User(UserBase, table=True):
             "example": {
                 "first_name": "Daniel",
                 "last_name": "Lee",
-                "email": "webstar.lee@gmail.com",
-                "username": "daniellee",
+                "email": "admin@gmail.com",
+                "username": "admin",
                 "password": "1234567890",
                 "is_superuser": True,
                 "is_active": True

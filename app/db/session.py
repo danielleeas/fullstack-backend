@@ -16,13 +16,13 @@ def init_db() -> None:
         if not admin:
             # Create default superuser
             admin = UserCreate(
-                email="webstar.lee@gmail.com",
-                password="1234567890",
+                email=settings.ADMIN_EMAIL,
+                password=settings.ADMIN_PASSWORD,
+                first_name=settings.ADMIN_FIRST_NAME,
+                last_name=settings.ADMIN_LAST_NAME,
+                username=settings.ADMIN_USERNAME,
                 is_superuser=True,
                 is_active=True,
-                first_name="Daniel",
-                last_name="Lee",
-                username="daniellee"
             )
             create_user(session=session, user_create=admin)
 
