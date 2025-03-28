@@ -28,6 +28,8 @@ def upgrade() -> None:
         sa.Column("last_name", sa.String(50), nullable=False),
         sa.Column("email", sa.String(100), nullable=False, unique=True),
         sa.Column("username", sa.String(50), nullable=False, unique=True),
+        sa.Column("is_superuser", sa.Boolean(), nullable=False, default=False),
+        sa.Column("is_active", sa.Boolean(), nullable=False, default=True),
         sa.Column("password", sa.String(255), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.func.now()),
         sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.func.now()),
