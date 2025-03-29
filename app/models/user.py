@@ -1,6 +1,4 @@
-from curses import panel
-from itertools import tee
-import email
+from pydantic import EmailStr
 from datetime import datetime, UTC
 from sqlmodel import Field, SQLModel
 from app.utils.ulid import generate_ulid
@@ -50,3 +48,13 @@ class User(UserBase, table=True):
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"
+
+class UserRegister(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=40)
+    first_name: str = Field(max_length=50)
+    last_name: str = Field(max_length=50)
+    username: str = Field(max_length=50)
+
+class UserPublic(UserBase):
+    id: str
