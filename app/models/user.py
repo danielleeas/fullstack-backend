@@ -1,4 +1,4 @@
-from pydantic import EmailStr
+from pydantic import EmailStr, field_validator
 from datetime import datetime, UTC
 from sqlmodel import Field, SQLModel
 from app.utils.ulid import generate_ulid
@@ -57,20 +57,52 @@ class UserRegister(SQLModel):
     username: str = Field(max_length=50)
 
 class UserLogin(SQLModel):
-    email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
+    email: EmailStr = Field(
+        max_length=255,
+        description="User's email address"
+    )
+    password: str = Field(
+        min_length=8,
+        max_length=40,
+        description="User's password"
+    )
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "user@example.com",
+                "password": "password123"
+            }
+        }
+    }
+
+    @field_validator('email')
+    def validate_email(cls, v):
+        if not v:
+            raise ValueError("Email is required")
+        return v.lower().strip()
+
+    @field_validator('password')
+    def validate_password(cls, v):
+        if not v:
+            raise ValueError("Password is required")
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        if len(v) > 40:
+            raise ValueError("Password must be less than 40 characters")
+        return v
 
 class UserPublic(UserBase):
     id: str
 
 class LoginResponse(SQLModel):
-    access_token: str
+    token: str
     user: UserPublic
 
     model_config = {
         "json_schema_extra": {
             "example": {
-                "access_token": "1234567890",
+                "token": "1234567890",
                 "user": {
                     "id": "1234567890",
                     "email": "admin@gmail.com",

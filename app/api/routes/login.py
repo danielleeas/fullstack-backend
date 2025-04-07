@@ -44,6 +44,7 @@ def login_user(
     """
     OAuth2 compatible token login, get an access token for future requests
     """
+    print(user_in)
     
     user_login = UserLogin.model_validate(user_in)
     
@@ -62,17 +63,9 @@ def login_user(
     )
     
     return LoginResponse(
-        access_token=token.access_token,
+        token=token.access_token,
         user=user
     )
-
-
-@router.post("/login/test-token", response_model=UserPublic)
-def test_token(current_user: CurrentUser) -> Any:
-    """
-    Test access token
-    """
-    return current_user
 
 
 @router.post("/password-recovery/{email}")
