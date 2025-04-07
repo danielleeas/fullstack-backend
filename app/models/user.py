@@ -56,5 +56,28 @@ class UserRegister(SQLModel):
     last_name: str = Field(max_length=50)
     username: str = Field(max_length=50)
 
+class UserLogin(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=40)
+
 class UserPublic(UserBase):
     id: str
+
+class LoginResponse(SQLModel):
+    access_token: str
+    user: UserPublic
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "access_token": "1234567890",
+                "user": {
+                    "id": "1234567890",
+                    "email": "admin@gmail.com",
+                    "username": "admin",
+                    "first_name": "Daniel",
+                    "last_name": "Lee",
+                }
+            }
+        }
+    }
