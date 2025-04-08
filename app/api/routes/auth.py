@@ -11,7 +11,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.user import UserPublic, UserRegister, UserCreate, UserLogin, LoginResponse
-from app.models.token import Token, Message, NewPassword
+from app.models.token import Token, Message, NewPassword, ErrorResponse
 from app.utils.comon import (
     generate_password_reset_token,
     generate_reset_password_email,
@@ -21,8 +21,8 @@ from app.utils.comon import (
 
 router = APIRouter(tags=["Auth"])
 
-@router.post("/register", response_model=UserPublic)
-def register_user(session: SessionDep, user_in: UserRegister) -> Any:
+@router.post("/signup", response_model=UserPublic)
+def signup_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     Create new user without the need to be logged in.
     """
@@ -30,31 +30,46 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this email already exists in the system",
+            detail= ErrorResponse(
+                error="user_already_exists",
+                message="The user with this email already exists in the system"
+            ).model_dump()
         )
     user_create = UserCreate.model_validate(user_in)
     user = user_crud.create_user(session=session, user_create=user_create)
     
     return user
 
-@router.post("/login", response_model=LoginResponse)
-def login_user(
+@router.post("/signin", response_model=LoginResponse, responses={
+    400: {"model": ErrorResponse, "description": "Invalid credentials or inactive user"}
+})
+def signin_user(
     session: SessionDep, user_in: UserLogin
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    print(user_in)
-    
     user_login = UserLogin.model_validate(user_in)
     
     user = user_crud.login_user(
         session=session, user_login=user_login
     )
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(
+            status_code=400,
+            detail=ErrorResponse(
+                error="invalid_credentials",
+                message="Incorrect email or password"
+            ).model_dump()
+        )
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=400,
+            detail=ErrorResponse(
+                error="inactive_user",
+                message="Inactive user"
+            ).model_dump()
+        )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = Token(
         access_token=security.create_access_token(
